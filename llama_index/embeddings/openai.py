@@ -99,9 +99,7 @@ _TEXT_MODE_MODEL_DICT = {
     wait=wait_random_exponential(min=1, max=20),
     stop=stop_all(stop_after_attempt(6), stop_after_delay(60)),
 )
-def get_embedding(
-    text: str, engine: Optional[str] = None, **kwargs: Any
-) -> List[float]:
+def get_embedding(text: str, engine: Optional[str] = None, **kwargs: Any) -> List[float]:
     """Get embedding.
 
     NOTE: Copied from OpenAI's embedding utils:
@@ -112,18 +110,14 @@ def get_embedding(
 
     """
     text = text.replace("\n", " ")
-    return openai.Embedding.create(input=[text], model=engine, **kwargs)["data"][0][
-        "embedding"
-    ]
+    return openai.Embedding.create(input=[text], model=engine, **kwargs)["data"][0]["embedding"]
 
 
 @retry(
     wait=wait_random_exponential(min=1, max=20),
     stop=stop_all(stop_after_attempt(6), stop_after_delay(60)),
 )
-async def aget_embedding(
-    text: str, engine: Optional[str] = None, **kwargs: Any
-) -> List[float]:
+async def aget_embedding(text: str, engine: Optional[str] = None, **kwargs: Any) -> List[float]:
     """Asynchronously get embedding.
 
     NOTE: Copied from OpenAI's embedding utils:
@@ -136,18 +130,14 @@ async def aget_embedding(
     # replace newlines, which can negatively affect performance.
     text = text.replace("\n", " ")
 
-    return (await openai.Embedding.acreate(input=[text], model=engine, **kwargs))[
-        "data"
-    ][0]["embedding"]
+    return (await openai.Embedding.acreate(input=[text], model=engine, **kwargs))["data"][0]["embedding"]
 
 
 @retry(
     wait=wait_random_exponential(min=1, max=20),
     stop=stop_all(stop_after_attempt(6), stop_after_delay(60)),
 )
-def get_embeddings(
-    list_of_text: List[str], engine: Optional[str] = None, **kwargs: Any
-) -> List[List[float]]:
+def get_embeddings(list_of_text: List[str], engine: Optional[str] = None, **kwargs: Any) -> List[List[float]]:
     """Get embeddings.
 
     NOTE: Copied from OpenAI's embedding utils:
@@ -162,7 +152,12 @@ def get_embeddings(
     # replace newlines, which can negatively affect performance.
     list_of_text = [text.replace("\n", " ") for text in list_of_text]
 
-    data = openai.Embedding.create(input=list_of_text, model=engine, **kwargs).data
+    response = openai.Embedding.create(input=list_of_text, model=engine, **kwargs)
+    print("=================( log start )===================")
+    print(response)
+    print(response.data)
+    print("=================( log end )===================")
+    data = response.data
     return [d["embedding"] for d in data]
 
 
@@ -170,9 +165,7 @@ def get_embeddings(
     wait=wait_random_exponential(min=1, max=20),
     stop=stop_all(stop_after_attempt(6), stop_after_delay(60)),
 )
-async def aget_embeddings(
-    list_of_text: List[str], engine: Optional[str] = None, **kwargs: Any
-) -> List[List[float]]:
+async def aget_embeddings(list_of_text: List[str], engine: Optional[str] = None, **kwargs: Any) -> List[List[float]]:
     """Asynchronously get embeddings.
 
     NOTE: Copied from OpenAI's embedding utils:
@@ -187,9 +180,7 @@ async def aget_embeddings(
     # replace newlines, which can negatively affect performance.
     list_of_text = [text.replace("\n", " ") for text in list_of_text]
 
-    data = (
-        await openai.Embedding.acreate(input=list_of_text, model=engine, **kwargs)
-    ).data
+    data = (await openai.Embedding.acreate(input=list_of_text, model=engine, **kwargs)).data
     return [d["embedding"] for d in data]
 
 
