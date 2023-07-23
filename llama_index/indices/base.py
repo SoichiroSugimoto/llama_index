@@ -68,6 +68,7 @@ class BaseIndex(Generic[IS], ABC):
         with self._service_context.callback_manager.as_trace("index_construction"):
             if index_struct is None:
                 assert nodes is not None
+                _nodes = nodes
                 index_struct = self.build_index_from_nodes(nodes)
             self._index_struct = index_struct
             self._storage_context.index_store.add_index_struct(self._index_struct)
