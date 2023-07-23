@@ -152,6 +152,7 @@ def get_embeddings(list_of_text: List[str], engine: Optional[str] = None, **kwar
     # replace newlines, which can negatively affect performance.
     list_of_text = [text.replace("\n", " ") for text in list_of_text]
 
+    print(list_of_text)
     response = openai.Embedding.create(input=list_of_text, model=engine, **kwargs)
     print("=================( log start )===================")
     print(response)
