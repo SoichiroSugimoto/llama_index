@@ -96,7 +96,9 @@ class BaseIndex(Generic[IS], ABC):
             for doc in documents:
                 docstore.set_document_hash(doc.get_doc_id(), doc.hash)
             nodes = service_context.node_parser.get_nodes_from_documents(documents, show_progress=show_progress)
+            print(">>>>>>>>>>>>>>>>>>>>>")
             print(nodes)
+            print("<<<<<<<<<<<<<<<<<<<<<")
 
             return cls(
                 nodes=nodes,
