@@ -58,9 +58,7 @@ def build_dict(input_batch: List[List[int]]) -> List[Dict[str, Any]]:
     return sparse_emb
 
 
-def generate_sparse_vectors(
-    context_batch: List[str], tokenizer: Callable
-) -> List[Dict[str, Any]]:
+def generate_sparse_vectors(context_batch: List[str], tokenizer: Callable) -> List[Dict[str, Any]]:
     """Generate sparse vectors from a batch of contexts.
 
     NOTE: taken from https://www.pinecone.io/learn/hybrid-search-intro/.
@@ -134,9 +132,7 @@ class PineconeVectorStore(VectorStore):
         **kwargs: Any,
     ) -> None:
         """Initialize params."""
-        import_err_msg = (
-            "`pinecone` package not found, please run `pip install pinecone-client`"
-        )
+        import_err_msg = "`pinecone` package not found, please run `pip install pinecone-client`"
         try:
             import pinecone  # noqa: F401
         except ImportError:
@@ -150,14 +146,10 @@ class PineconeVectorStore(VectorStore):
         else:
             if "PINECONE_API_KEY" not in os.environ:
                 raise ValueError(
-                    "Must specify PINECONE_API_KEY via env variable "
-                    "if not directly passing in client."
+                    "Must specify PINECONE_API_KEY via env variable " "if not directly passing in client."
                 )
             if index_name is None or environment is None:
-                raise ValueError(
-                    "Must specify index_name and environment "
-                    "if not directly passing in client."
-                )
+                raise ValueError("Must specify index_name and environment " "if not directly passing in client.")
 
             pinecone.init(environment=environment)
             self._pinecone_index = pinecone.Index(index_name)
@@ -187,9 +179,7 @@ class PineconeVectorStore(VectorStore):
             node_id = result.id
             node = result.node
 
-            metadata = node_to_metadata_dict(
-                node, remove_text=False, flat_metadata=self.flat_metadata
-            )
+            metadata = node_to_metadata_dict(node, remove_text=False, flat_metadata=self.flat_metadata)
 
             entry = {
                 ID_KEY: node_id,
@@ -211,6 +201,7 @@ class PineconeVectorStore(VectorStore):
             batch_size=self._batch_size,
             **self._insert_kwargs,
         )
+        print(ids)
         return ids
 
     def delete(self, ref_doc_id: str, **delete_kwargs: Any) -> None:
@@ -244,12 +235,8 @@ class PineconeVectorStore(VectorStore):
         sparse_vector = None
         if query.mode in (VectorStoreQueryMode.SPARSE, VectorStoreQueryMode.HYBRID):
             if query.query_str is None:
-                raise ValueError(
-                    "query_str must be specified if mode is SPARSE or HYBRID."
-                )
-            sparse_vector = generate_sparse_vectors([query.query_str], self._tokenizer)[
-                0
-            ]
+                raise ValueError("query_str must be specified if mode is SPARSE or HYBRID.")
+            sparse_vector = generate_sparse_vectors([query.query_str], self._tokenizer)[0]
             if query.alpha is not None:
                 sparse_vector = {
                     "indices": sparse_vector["indices"],
@@ -292,9 +279,7 @@ class PineconeVectorStore(VectorStore):
                 node = metadata_dict_to_node(match.metadata)
             except Exception:
                 # NOTE: deprecated legacy logic for backward compatibility
-                _logger.debug(
-                    "Failed to parse Node metadata, fallback to legacy logic."
-                )
+                _logger.debug("Failed to parse Node metadata, fallback to legacy logic.")
                 metadata, node_info, relationships = legacy_metadata_dict_to_node(
                     match.metadata, text_key=self._text_key
                 )
@@ -313,6 +298,4 @@ class PineconeVectorStore(VectorStore):
             top_k_nodes.append(node)
             top_k_scores.append(match.score)
 
-        return VectorStoreQueryResult(
-            nodes=top_k_nodes, similarities=top_k_scores, ids=top_k_ids
-        )
+        return VectorStoreQueryResult(nodes=top_k_nodes, similarities=top_k_scores, ids=top_k_ids)
