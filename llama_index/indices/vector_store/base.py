@@ -212,9 +212,12 @@ class VectorStoreIndex(BaseIndex[IndexDict]):
             print(new_ids)
             # NOTE: if the vector store keeps text,
             # we only need to add image and index nodes
+            print("---------( start )----------")
             for result, new_id in zip(embedding_results, new_ids):
                 if isinstance(result.node, (ImageNode, IndexNode)):
                     index_struct.add_node(result.node, text_id=new_id)
+                    print(index_struct)
+                    print("---------( end )----------")
                     self._docstore.add_documents([result.node], allow_update=True)
 
     def _build_index_from_nodes(self, nodes: Sequence[BaseNode]) -> IndexDict:
