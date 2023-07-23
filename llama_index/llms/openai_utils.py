@@ -124,9 +124,7 @@ def completion_with_retry(is_chat_model: bool, max_retries: int, **kwargs: Any) 
     return _completion_with_retry(**kwargs)
 
 
-async def acompletion_with_retry(
-    is_chat_model: bool, max_retries: int, **kwargs: Any
-) -> Any:
+async def acompletion_with_retry(is_chat_model: bool, max_retries: int, **kwargs: Any) -> Any:
     """Use tenacity to retry the async completion call."""
     retry_decorator = _create_retry_decorator(max_retries=max_retries)
 
@@ -161,10 +159,7 @@ def openai_modelname_to_contextsize(modelname: str) -> int:
         modelname = modelname.split(":")[0]
 
     if modelname in DISCONTINUED_MODELS:
-        raise ValueError(
-            f"OpenAI model {modelname} has been discontinued. "
-            "Please choose another model."
-        )
+        raise ValueError(f"OpenAI model {modelname} has been discontinued. " "Please choose another model.")
 
     context_size = ALL_AVAILABLE_MODELS.get(modelname, None)
 

@@ -60,14 +60,10 @@ class VectorStoreIndex(BaseIndex[IndexDict]):
         **kwargs: Any,
     ) -> "VectorStoreIndex":
         if not vector_store.stores_text:
-            raise ValueError(
-                "Cannot initialize from a vector store that does not store text."
-            )
+            raise ValueError("Cannot initialize from a vector store that does not store text.")
 
         storage_context = StorageContext.from_defaults(vector_store=vector_store)
-        return cls(
-            nodes=[], service_context=service_context, storage_context=storage_context
-        )
+        return cls(nodes=[], service_context=service_context, storage_context=storage_context)
 
     @property
     def vector_store(self) -> VectorStore:
@@ -135,9 +131,7 @@ class VectorStoreIndex(BaseIndex[IndexDict]):
         text_queue: List[Tuple[str, str]] = []
         for n in nodes:
             if n.embedding is None:
-                text_queue.append(
-                    (n.node_id, n.get_content(metadata_mode=MetadataMode.EMBED))
-                )
+                text_queue.append((n.node_id, n.get_content(metadata_mode=MetadataMode.EMBED)))
             else:
                 id_to_embed_map[n.node_id] = n.embedding
 
@@ -145,9 +139,7 @@ class VectorStoreIndex(BaseIndex[IndexDict]):
         (
             result_ids,
             result_embeddings,
-        ) = await self._service_context.embed_model.aget_queued_text_embeddings(
-            text_queue, show_progress
-        )
+        ) = await self._service_context.embed_model.aget_queued_text_embeddings(text_queue, show_progress)
 
         for new_id, text_embedding in zip(result_ids, result_embeddings):
             id_to_embed_map[new_id] = text_embedding
@@ -169,18 +161,22 @@ class VectorStoreIndex(BaseIndex[IndexDict]):
         if not nodes:
             return
 
-        embedding_results = await self._aget_node_embedding_results(
-            nodes, show_progress
-        )
+        embedding_results = await self._aget_node_embedding_results(nodes, show_progress)
         new_ids = self._vector_store.add(embedding_results)
 
         # if the vector store doesn't store text, we need to add the nodes to the
         # index struct and document store
         if not self._vector_store.stores_text or self._store_nodes_override:
+            print(
+                "#####################( (_async_add_nodes_to_index)if not self._vector_store.stores_text or self._store_nodes_override: )##########################"
+            )
+            print(new_ids)
             for result, new_id in zip(embedding_results, new_ids):
                 index_struct.add_node(result.node, text_id=new_id)
                 self._docstore.add_documents([result.node], allow_update=True)
         else:
+            print("#####################( (_async_add_nodes_to_index)else: )##########################")
+            print(new_ids)
             # NOTE: if the vector store keeps text,
             # we only need to add image and index nodes
             for result, new_id in zip(embedding_results, new_ids):
@@ -202,12 +198,18 @@ class VectorStoreIndex(BaseIndex[IndexDict]):
         new_ids = self._vector_store.add(embedding_results)
 
         if not self._vector_store.stores_text or self._store_nodes_override:
+            print(
+                "#####################( (_add_nodes_to_index)if not self._vector_store.stores_text or self._store_nodes_override: )##########################"
+            )
+            print(new_ids)
             # NOTE: if the vector store doesn't store text,
             # we need to add the nodes to the index struct and document store
             for result, new_id in zip(embedding_results, new_ids):
                 index_struct.add_node(result.node, text_id=new_id)
                 self._docstore.add_documents([result.node], allow_update=True)
         else:
+            print("#####################( (_add_nodes_to_index)else: )##########################")
+            print(new_ids)
             # NOTE: if the vector store keeps text,
             # we only need to add image and index nodes
             for result, new_id in zip(embedding_results, new_ids):
@@ -219,16 +221,10 @@ class VectorStoreIndex(BaseIndex[IndexDict]):
         """Build index from nodes."""
         index_struct = self.index_struct_cls()
         if self._use_async:
-            tasks = [
-                self._async_add_nodes_to_index(
-                    index_struct, nodes, show_progress=self._show_progress
-                )
-            ]
+            tasks = [self._async_add_nodes_to_index(index_struct, nodes, show_progress=self._show_progress)]
             run_async_tasks(tasks)
         else:
-            self._add_nodes_to_index(
-                index_struct, nodes, show_progress=self._show_progress
-            )
+            self._add_nodes_to_index(index_struct, nodes, show_progress=self._show_progress)
         return index_struct
 
     def build_index_from_nodes(self, nodes: Sequence[BaseNode]) -> IndexDict:
@@ -274,9 +270,7 @@ class VectorStoreIndex(BaseIndex[IndexDict]):
             "deletes nodes using the ref_doc_id of ingested documents."
         )
 
-    def delete_ref_doc(
-        self, ref_doc_id: str, delete_from_docstore: bool = False, **delete_kwargs: Any
-    ) -> None:
+    def delete_ref_doc(self, ref_doc_id: str, delete_from_docstore: bool = False, **delete_kwargs: Any) -> None:
         """Delete a document and it's nodes by using ref_doc_id."""
         self._vector_store.delete(ref_doc_id)
 
@@ -288,9 +282,7 @@ class VectorStoreIndex(BaseIndex[IndexDict]):
                     self._index_struct.delete(node_id)
 
         # delete from docstore only if needed
-        if (
-            not self._vector_store.stores_text or self._store_nodes_override
-        ) and delete_from_docstore:
+        if (not self._vector_store.stores_text or self._store_nodes_override) and delete_from_docstore:
             self._docstore.delete_ref_doc(ref_doc_id, raise_error=False)
 
         self._storage_context.index_store.add_index_struct(self._index_struct)
