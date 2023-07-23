@@ -95,9 +95,8 @@ class BaseIndex(Generic[IS], ABC):
         with service_context.callback_manager.as_trace("index_construction"):
             for doc in documents:
                 docstore.set_document_hash(doc.get_doc_id(), doc.hash)
-            nodes = service_context.node_parser.get_nodes_from_documents(
-                documents, show_progress=show_progress
-            )
+            nodes = service_context.node_parser.get_nodes_from_documents(documents, show_progress=show_progress)
+            print(nodes)
 
             return cls(
                 nodes=nodes,
@@ -184,9 +183,7 @@ class BaseIndex(Generic[IS], ABC):
     def insert(self, document: Document, **insert_kwargs: Any) -> None:
         """Insert a document."""
         with self._service_context.callback_manager.as_trace("insert"):
-            nodes = self.service_context.node_parser.get_nodes_from_documents(
-                [document]
-            )
+            nodes = self.service_context.node_parser.get_nodes_from_documents([document])
             self.insert_nodes(nodes, **insert_kwargs)
             self.docstore.set_document_hash(document.get_doc_id(), document.hash)
 
@@ -227,9 +224,7 @@ class BaseIndex(Generic[IS], ABC):
         )
         self.delete_ref_doc(doc_id)
 
-    def delete_ref_doc(
-        self, ref_doc_id: str, delete_from_docstore: bool = False, **delete_kwargs: Any
-    ) -> None:
+    def delete_ref_doc(self, ref_doc_id: str, delete_from_docstore: bool = False, **delete_kwargs: Any) -> None:
         """Delete a document and it's nodes by using ref_doc_id."""
         ref_doc_info = self.docstore.get_ref_doc_info(ref_doc_id)
         if ref_doc_info is None:
@@ -257,8 +252,7 @@ class BaseIndex(Generic[IS], ABC):
 
         """
         logger.warning(
-            "update() is now deprecated, please refer to update_ref_doc() to update "
-            "ingested documents+nodes."
+            "update() is now deprecated, please refer to update_ref_doc() to update " "ingested documents+nodes."
         )
         self.update_ref_doc(document, **update_kwargs)
 
@@ -274,14 +268,10 @@ class BaseIndex(Generic[IS], ABC):
 
         """
         with self._service_context.callback_manager.as_trace("update"):
-            self.delete_ref_doc(
-                document.get_doc_id(), **update_kwargs.pop("delete_kwargs", {})
-            )
+            self.delete_ref_doc(document.get_doc_id(), **update_kwargs.pop("delete_kwargs", {}))
             self.insert(document, **update_kwargs.pop("insert_kwargs", {}))
 
-    def refresh(
-        self, documents: Sequence[Document], **update_kwargs: Any
-    ) -> List[bool]:
+    def refresh(self, documents: Sequence[Document], **update_kwargs: Any) -> List[bool]:
         """Refresh an index with documents that have changed.
 
         This allows users to save LLM and Embedding model calls, while only
@@ -294,9 +284,7 @@ class BaseIndex(Generic[IS], ABC):
         )
         return self.refresh_ref_docs(documents, **update_kwargs)
 
-    def refresh_ref_docs(
-        self, documents: Sequence[Document], **update_kwargs: Any
-    ) -> List[bool]:
+    def refresh_ref_docs(self, documents: Sequence[Document], **update_kwargs: Any) -> List[bool]:
         """Refresh an index with documents that have changed.
 
         This allows users to save LLM and Embedding model calls, while only
@@ -306,13 +294,9 @@ class BaseIndex(Generic[IS], ABC):
         with self._service_context.callback_manager.as_trace("refresh"):
             refreshed_documents = [False] * len(documents)
             for i, document in enumerate(documents):
-                existing_doc_hash = self._docstore.get_document_hash(
-                    document.get_doc_id()
-                )
+                existing_doc_hash = self._docstore.get_document_hash(document.get_doc_id())
                 if existing_doc_hash != document.hash:
-                    self.update_ref_doc(
-                        document, **update_kwargs.pop("update_kwargs", {})
-                    )
+                    self.update_ref_doc(document, **update_kwargs.pop("update_kwargs", {}))
                     refreshed_documents[i] = True
                 elif existing_doc_hash is None:
                     self.insert(document, **update_kwargs.pop("insert_kwargs", {}))
@@ -341,9 +325,7 @@ class BaseIndex(Generic[IS], ABC):
             kwargs["service_context"] = self._service_context
         return RetrieverQueryEngine.from_args(**kwargs)
 
-    def as_chat_engine(
-        self, chat_mode: ChatMode = ChatMode.BEST, **kwargs: Any
-    ) -> BaseChatEngine:
+    def as_chat_engine(self, chat_mode: ChatMode = ChatMode.BEST, **kwargs: Any) -> BaseChatEngine:
         query_engine = self.as_query_engine(**kwargs)
         if "service_context" not in kwargs:
             kwargs["service_context"] = self._service_context
