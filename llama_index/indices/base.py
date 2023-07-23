@@ -100,14 +100,17 @@ class BaseIndex(Generic[IS], ABC):
             print(nodes)
             print("<<<<<<<<<<<<<<<<<<<<<<")
             print(
-                cls(
-                    nodes=nodes,
-                    storage_context=storage_context,
-                    service_context=service_context,
-                    show_progress=show_progress,
-                    **kwargs,
+                vars(
+                    cls(
+                        nodes=nodes,
+                        storage_context=storage_context,
+                        service_context=service_context,
+                        show_progress=show_progress,
+                        **kwargs,
+                    )
                 )
             )
+            print("~~~~~~~~~~~~~~~~~~< 1 >~~~~~~~~~~~~~~~~~~~~~~~")
             print(
                 type(
                     cls(
@@ -119,7 +122,7 @@ class BaseIndex(Generic[IS], ABC):
                     )
                 )
             )
-
+            print("~~~~~~~~~~~~~~~~~~< 2 >~~~~~~~~~~~~~~~~~~~~~~~")
             return cls(
                 nodes=nodes,
                 storage_context=storage_context,
