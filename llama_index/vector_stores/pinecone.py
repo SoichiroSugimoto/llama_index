@@ -201,7 +201,6 @@ class PineconeVectorStore(VectorStore):
             batch_size=self._batch_size,
             **self._insert_kwargs,
         )
-        print(ids)
         return ids
 
     def delete(self, ref_doc_id: str, **delete_kwargs: Any) -> None:
