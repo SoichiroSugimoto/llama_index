@@ -98,7 +98,27 @@ class BaseIndex(Generic[IS], ABC):
             nodes = service_context.node_parser.get_nodes_from_documents(documents, show_progress=show_progress)
             print(">>>>>>>>>>>>>>>>>>>>>")
             print(nodes)
-            print("<<<<<<<<<<<<<<<<<<<<<")
+            print("<<<<<<<<<<<<<<<<<<<<<<")
+            print(
+                cls(
+                    nodes=nodes,
+                    storage_context=storage_context,
+                    service_context=service_context,
+                    show_progress=show_progress,
+                    **kwargs,
+                )
+            )
+            print(
+                type(
+                    cls(
+                        nodes=nodes,
+                        storage_context=storage_context,
+                        service_context=service_context,
+                        show_progress=show_progress,
+                        **kwargs,
+                    )
+                )
+            )
 
             return cls(
                 nodes=nodes,
